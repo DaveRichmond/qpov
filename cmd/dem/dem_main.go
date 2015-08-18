@@ -380,6 +380,12 @@ func generateFrame(p pak.MultiPak, outDir string, oldState, newState *dem.State,
 			curState.Entities[n].Color = newState.Entities[n].Color
 		}
 	}
+	var camera string = "perspective"
+	var angle int = 100
+	if threesixty {
+		camera = "panoramic"
+		angle = 360
+	}
 	if *verbose {
 		fmt.Printf("Frame %d (t=%g): Pos: %v (%v -> %v, %g), viewAngle %v (%v -> %v)\n", frameNum, curState.Time,
 			curState.Entities[curState.CameraEnt].Pos,
@@ -391,7 +397,7 @@ func generateFrame(p pak.MultiPak, outDir string, oldState, newState *dem.State,
 			newState.ViewAngle,
 		)
 	}
-	writePOV(path.Join(outDir, fmt.Sprintf("frame-%08d.pov", frameNum)), newState.ServerInfo.Models[0], curState, cameraLight, radiosity)
+	writePOV(path.Join(outDir, fmt.Sprintf("frame-%08d.pov", frameNum)), newState.ServerInfo.Models[0], curState, cameraLight, radiosity, camera, angle)
 }
 
 func frameName(mf string, frame int) string {
@@ -422,7 +428,7 @@ func validModel(m string) bool {
 	return false
 }
 
-func writePOV(fn, texturesPath string, state *dem.State, cameraLight, radiosity bool) {
+func writePOV(fn, texturesPath string, state *dem.State, cameraLight, radiosity bool, cameraType string, cameraAngle int) {
 	ufo, err := os.Create(fn)
 	if err != nil {
 		log.Fatalf("Creating %q: %v", fn, err)
@@ -473,7 +479,8 @@ global_settings {
 {{ range .Models }}#include "{{$root.Prefix}}{{ . }}"
 {{ end }}
 camera {
-  angle 100
+  {{.CameraType}}
+  angle {{.CameraAngle}}
   location <0,0,0>
   sky <0,0,1>
   up <0,0,9>
@@ -502,6 +509,8 @@ camera {
 		Level                  string
 		EyeLevel               string
 		Models                 []string
+		CameraType	       string
+		CameraAngle	       int
 	}{
 		Prefix:    *prefix,
 		Version:   *version,
@@ -515,6 +524,8 @@ camera {
 		AngleZ:    float64(state.ViewAngle.Y),
 		Pos:       pos.String(),
 		EyeLevel:  eyeLevel.String(),
+		CameraType: cameraType,
+		CameraAngle: cameraAngle,
 	}); err != nil {
 		log.Fatalf("Executing template: %v", err)
 	}
