@@ -126,6 +126,7 @@ func convert(p pak.MultiPak, args ...string) {
 	fps := fs.Float64("fps", 30.0, "Frames per second.")
 	outDir := fs.String("out", "render", "Output directory.")
 	cameraLight := fs.Bool("camera_light", false, "Add camera light.")
+	threesixty := fs.Bool("threesixty", false, "360 degree view mode.")
 	fs.Parse(args)
 	if fs.NArg() == 0 {
 		log.Fatalf("Need to specify a demo name.")
@@ -215,7 +216,7 @@ func convert(p pak.MultiPak, args ...string) {
 					if *verbose {
 						log.Printf("Generating frame %d", frameNum)
 					}
-					generateFrame(p, *outDir, oldState, newState, frameNum, t, *cameraLight, *radiosity)
+					generateFrame(p, *outDir, oldState, newState, frameNum, t, *cameraLight, *radiosity, *threesixty)
 					anyFrame = true
 					frameNum++
 				}
@@ -312,7 +313,7 @@ func tooFast(s0, s1 *dem.State) bool {
 	return false
 }
 
-func generateFrame(p pak.MultiPak, outDir string, oldState, newState *dem.State, frameNum int, t float64, cameraLight, radiosity bool) {
+func generateFrame(p pak.MultiPak, outDir string, oldState, newState *dem.State, frameNum int, t float64, cameraLight, radiosity bool, threesixty bool) {
 	if newState.ServerInfo.Models == nil {
 		return
 	}
