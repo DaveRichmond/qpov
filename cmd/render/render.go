@@ -109,8 +109,8 @@ func doRender(files <-chan string, done chan<- bool) {
 				totalSystem += cmd.ProcessState.SystemTime()
 			}()
 		}()
-		done <- true
 	}
+	done <- true
 }
 
 func main() {
