@@ -381,10 +381,10 @@ func generateFrame(p pak.MultiPak, outDir string, oldState, newState *dem.State,
 		}
 	}
 	var camera string = "perspective"
-	var angle int = 100
+	var angle string = "100"
 	if threesixty {
-		camera = "panoramic"
-		angle = 360
+		camera = "spherical"
+		angle = "360 180"
 	}
 	if *verbose {
 		fmt.Printf("Frame %d (t=%g): Pos: %v (%v -> %v, %g), viewAngle %v (%v -> %v)\n", frameNum, curState.Time,
@@ -428,7 +428,7 @@ func validModel(m string) bool {
 	return false
 }
 
-func writePOV(fn, texturesPath string, state *dem.State, cameraLight, radiosity bool, cameraType string, cameraAngle int) {
+func writePOV(fn, texturesPath string, state *dem.State, cameraLight, radiosity bool, cameraType string, cameraAngle string) {
 	ufo, err := os.Create(fn)
 	if err != nil {
 		log.Fatalf("Creating %q: %v", fn, err)
@@ -510,7 +510,7 @@ camera {
 		EyeLevel               string
 		Models                 []string
 		CameraType	       string
-		CameraAngle	       int
+		CameraAngle	       string
 	}{
 		Prefix:    *prefix,
 		Version:   *version,
